@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Translator Morse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <h1>Penerjemah Kode Morse</h1>
+    <form method="POST">
+        <textarea name="input" placeholder="Masukkan teks atau morse" required></textarea>
+        <br>
+        <button type="submit" name="mode" value="to_morse">Teks ke Morse</button>
+        <button type="submit" name="mode" value="to_text">Morse ke Teks</button>
+    </form>
+
+    {% if result %}
+        <h3>Hasil:</h3>
+        <div id="output">{{ result }}</div>
+        <button onclick="speakText('{{ result }}')">🔊 Bacakan</button>
+        <button onclick="copyText()">📋 Salin</button>
+    {% endif %}
+
+    {% if history %}
+        <h3>Riwayat:</h3>
+        <ul>
+        {% for item in history[::-1] %}
+            <li><strong>{{ item.input }}</strong> ➜ {{ item.output }}</li>
+        {% endfor %}
+        </ul>
+        <form method="POST" action="/clear_history" onsubmit="return confirm('Hapus semua riwayat?')">
+            <button type="submit">🗑️ Hapus Riwayat</button>
+        </form>
+    {% endif %}
+</body>
+</html>
