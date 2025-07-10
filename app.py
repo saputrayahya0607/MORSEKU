@@ -1,34 +1,37 @@
-from flask import Flask, render_template, request, session
-from datetime import timedelta
-from morse_code import text_to_morse, morse_to_text
+from flask import Flask, render_template, request, send_file
+from gtts import gTTS
+import io
 
 app = Flask(__name__)
-app.secret_key = 'rahasia'
-app.permanent_session_lifetime = timedelta(days=1)
 
-@app.route('/', methods=['GET', 'POST'])
+# Halaman utama
+@app.route('/')
 def index():
-    result = ''
-    if 'history' not in session:
-        session['history'] = []
+    return render_template('index.html')
 
-    if request.method == 'POST':
-        mode = request.form['mode']
-        user_input = request.form['input'].strip()
-        if mode == 'to_morse':
-            result = text_to_morse(user_input)
-        else:
-            result = morse_to_text(user_input)
+# Halaman referensi
+@app.route('/referensi')
+def referensi():
+    return render_template('referensi.html')
 
-        session['history'].append({'input': user_input, 'output': result})
-        session.modified = True
+# Halaman credit
+@app.route('/credits')
+def credits():
+    return render_template('credits.html')
 
-    return render_template('index.html', result=result, history=session.get('history'))
+# Route TTS pakai gTTS
+@app.route('/speak')
+def speak():
+    text = request.args.get('text', '')
+    if not text:
+        return 'No text provided', 400
 
-@app.route('/clear_history', methods=['POST'])
-def clear_history():
-    session.pop('history', None)
-    return ('', 204)
+    tts = gTTS(text, lang='id')
+    mp3_fp = io.BytesIO()
+    tts.write_to_fp(mp3_fp)
+    mp3_fp.seek(0)
+
+    return send_file(mp3_fp, mimetype='audio/mpeg')
 
 if __name__ == '__main__':
     app.run(debug=True)

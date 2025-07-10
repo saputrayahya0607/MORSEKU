@@ -1,3 +1,6 @@
 flask
 gTTS
 pygame
+# pytesseract
+# opencv-python
+# Pillow
